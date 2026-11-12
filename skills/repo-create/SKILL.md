@@ -18,6 +18,7 @@ Internal skill. The rules live in `POLICY.md` beside this file (the one source; 
    - Never `--admin` past protection.
    - Local files are added or appended to, never overwritten.
    - Secrets: names only; values live in 1Password.
+4. **Before acting on an audit row's fix in a repo, read that project's memory** (`~/.claude/projects/<project-id>/memory/`): a recorded owner decision outranks a fix derived from an audit row (a rename fixed the row and left the label in history, where only a recreate removes it).
 
 ## New repo journey (`/repo-create`)
 

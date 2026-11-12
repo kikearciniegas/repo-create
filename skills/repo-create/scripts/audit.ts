@@ -227,7 +227,17 @@ const renameFix = (to: string, why: string) =>
   `${why}: gh repo rename ${to} -R ${slug} && git -C ${shq(repoPath)} remote set-url origin https://github.com/${owner}/${to}.git  # every other clone too; GitHub redirects the old name, do not rely on it`;
 check("repo-name", () => {
   const r = repoJson;
-  if (PREFIX.test(r.name)) return fail(`${slug}: the name carries a private folder label`, renameFix(randomName(), "rename to a random development name"));
+  const label = PREFIX.exec(r.name)?.[1];
+  if (label) {
+    const ev = `${slug}: the name carries a private folder label`, rename = renameFix(randomName(), "rename to a random development name");
+    // git grep exits 1 with no output when nothing matches; any other failure is an unknown, never zero.
+    const g = git("grep", "-c", "-i", "-F", label, ref);
+    const n = g.ok ? g.out.split("\n").filter(Boolean).reduce((s, l) => s + Number(l.slice(l.lastIndexOf(":") + 1)), 0) : !g.out && !g.err.trim() ? 0 : NaN;
+    if (Number.isNaN(n)) return fail(`${ev}; label mentions in the tree not checked`, rename);
+    if (!n) return fail(ev, rename);
+    return fail(`${ev}; the label also appears in ${n} tracked lines, and a rename leaves those and the history`,
+      `recreate clean (POLICY §1 'Recreating a repo clean', a one-way door the owner confirms); rename only as a stopgap: ${rename}`);
+  }
   if (isPublic && RANDOMISH.test(r.name)) return ["pass", `${r.name}: public with a development name`, renameFix("<product-name>", "public now, so the product name can replace the development name")];
   return pass(isPublic ? `${r.name} (public: the product name is fine)` : RANDOMISH.test(r.name) ? `${r.name}: random development name` : `${r.name} — private: keep product, client and folder names out until launch (${randomName()} would do)`);
 });
