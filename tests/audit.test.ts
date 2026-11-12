@@ -299,6 +299,16 @@ describe("plan × visibility × project needs", () => {
     const lab = audit({}, { repo: { ...REPO, name: "acme-thing" } });
     expect(lab.out).toMatch(/repo-name: rename to a random development name: gh repo rename [a-z]+-[a-z]+-\d{3} -R o\/r/);
   });
+  test("a folder label that also appears in tracked lines gets recreate first, rename only as a stopgap; absent, the rename fix is unchanged", () => {
+    const lab = audit({ "notes.md": "ACME notes\nnothing\nfrom acme\n", "src/a.txt": "acme-thing\n" }, { repo: { ...REPO, name: "acme-thing" } });
+    expect(lab.rows.get("repo-name")).toBe("fail");
+    expect(lab.out).toContain("the label also appears in 3 tracked lines, and a rename leaves those and the history");
+    expect(lab.out).toMatch(/- repo-name: recreate clean \(POLICY §1 'Recreating a repo clean', a one-way door the owner confirms\); rename only as a stopgap: rename to a random development name: gh repo rename [a-z]+-[a-z]+-\d{3} -R o\/r/);
+    const none = audit({}, { repo: { ...REPO, name: "acme-thing" } });
+    expect(none.out).not.toContain("tracked lines");
+    expect(none.out).not.toContain("not checked");
+    expect(none.out).toMatch(/- repo-name: rename to a random development name: gh repo rename /);
+  });
   test("hardening fixes are printed, never run", () => {
     const r = audit({}, { retention: { days: 90 } });
     expect(r.out).toContain("- log-retention: gh api -X PUT repos/o/r/actions/permissions/artifact-and-log-retention -F days=14");
