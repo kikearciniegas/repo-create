@@ -104,13 +104,14 @@ Repo settings live outside the tree, so nothing reviews them unless a rule names
      - environments and their branch policies;
      - secret NAMES and variables (values cannot be read back; confirm each is in 1Password first);
      - branch protection, Dependabot and security settings, Actions permissions;
-     - webhooks, deploy keys, collaborators, linked apps.
+     - webhooks, deploy keys, collaborators, linked apps;
+     - the raw JSON of `GET repos/<R>` (merge buttons, squash title, delete-branch) and of EVERY path in `audit.ts`'s prefetch list (Actions log retention, selected actions, workflow permissions included). The audit judges the restore, so the inventory is its list, not a hand-written one: a setting saved by no one comes back at GitHub's default and fails the audit with nothing to restore from.
   3. **Mirror backup:** `git clone --mirror` (plus `git lfs fetch --all` if the repo uses LFS) to `~/.claude-backups/<repo>-mirror-<date>/`, then `stat` it.
   4. **Clean the tree:** take out prefixes and leaked names, move large media to the NAS and `.gitignore` it, then run a full `gitleaks dir .` with zero findings.
   5. **New history:** a fresh single initial commit from the cleaned tree by default. Use `git filter-repo` only if the owner wants history kept, and then run gitleaks over the rewritten history too.
   6. **Delete, then recreate private** under a neutral name (needs `gh auth refresh -s delete_repo`):
      - push;
-     - re-apply every setting and read each back;
+     - re-apply every setting, then diff each saved GET against the live one; an exit code or a 200 is not a read-back. `gh api` sends `-F` fields as query parameters when `--input` is present, so a PATCH mixing them silently drops the `-F` fields: put every field in the one JSON body;
      - re-link integrations;
      - run CI and verify a deploy.
   7. **Delete and re-clone every old clone and worktree.**
