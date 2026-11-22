@@ -1,6 +1,7 @@
 ---
 name: repo-create
-description: Create and configure GitHub repositories with a read-only audit that knows what each GitHub plan (Free, Pro, Team) gives public and private repos. Use when CREATING a repository, renaming one or changing its visibility, changing repository or organization settings, answering a plan / quota / Actions-minutes question, choosing a licence, or applying the storage rules (media out of git, LFS, pulls that untrack files). Not for CI pipeline work (workflows, required checks, branch protection scripts, deploy): that is ci-flow.
+description: >-
+  Create and configure GitHub repositories with a read-only audit that knows what each GitHub plan (Free, Pro, Team) gives public and private repos. Use when CREATING a repository, renaming one or changing its visibility, changing repository or organization settings, answering a plan / quota / Actions-minutes question, choosing a licence, or applying the storage rules (media out of git, LFS, pulls that untrack files). Not for CI pipeline work (workflows, required checks, branch protection scripts, deploy): that is ci-flow.
 ---
 
 # repo-create — repositories created and configured on purpose
